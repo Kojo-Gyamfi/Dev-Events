@@ -50,6 +50,17 @@ const EventSchema = new Schema<IEvent>(
       type: String,
       required: [true, "Image URL is required"],
       trim: true,
+      validate: {
+        validator: (v: string) => {
+          try {
+            new URL(v);
+            return true;
+          } catch {
+            return false;
+          }
+        },
+        message: 'Image must be a valid URL',
+      },
     },
     venue: {
       type: String,
@@ -114,8 +125,16 @@ EventSchema.pre("save", function (next) {
   const event = this as IEvent;
 
   // Generate slug only if title changed or document is new
+<<<<<<< HEAD
   if (event.isModified("title") || event.isNew) {
     event.slug = generateSlug(event.title);
+=======
+  if (event.isModified('title') || event.isNew) {
+    const baseSlug = generateSlug(event.title);
+    // Append cryptographically random suffix to avoid collisions
+    const uniqueSuffix = Math.random().toString(36).substring(2, 8);
+    event.slug = `${baseSlug}-${uniqueSuffix}`;
+>>>>>>> 039b216083a09dfd3f50e9ec507be47ab9999196
   }
 
   // Normalize date to ISO format if it's not already
