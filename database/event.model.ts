@@ -50,6 +50,17 @@ const EventSchema = new Schema<IEvent>(
       type: String,
       required: [true, 'Image URL is required'],
       trim: true,
+      validate: {
+        validator: (v: string) => {
+          try {
+            new URL(v);
+            return true;
+          } catch {
+            return false;
+          }
+        },
+        message: 'Image must be a valid URL',
+      },
     },
     venue: {
       type: String,
