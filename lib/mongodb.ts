@@ -2,13 +2,6 @@ import mongoose from "mongoose";
 
 // Read the MongoDB connection string from environment variables.
 // This module is intended to be used on the server only.
-const MONGODB_URI = process.env.MONGODB_URI;
-
-if (!MONGODB_URI) {
-  throw new Error(
-    "Please define the MONGODB_URI environment variable in your environment (e.g. .env.local).",
-  );
-}
 
 // Shape of the cached connection object stored on the global scope.
 interface MongooseCache {
@@ -50,10 +43,18 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
     return cached.conn;
   }
 
+  // Read the MongoDB URI lazily to avoid import-time crashes in builds/tests.
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    throw new Error(
+      "Please define the MONGODB_URI environment variable in your environment (e.g. .env.local).",
+    );
+  }
+
   // If a connection promise does not exist yet, create one.
   if (!cached.promise) {
     cached.promise = mongoose
-      .connect(MONGODB_URI)
+      .connect(uri)
       .then((mongooseInstance) => mongooseInstance);
   }
 
