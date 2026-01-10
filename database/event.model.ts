@@ -127,8 +127,8 @@ EventSchema.pre('save', function (next) {
   // Generate slug only if title changed or document is new
   if (event.isModified('title') || event.isNew) {
     const baseSlug = generateSlug(event.title);
-    // Append short unique suffix to avoid collisions
-    const uniqueSuffix = Date.now().toString(36).slice(-4);
+    // Append cryptographically random suffix to avoid collisions
+    const uniqueSuffix = Math.random().toString(36).substring(2, 8);
     event.slug = `${baseSlug}-${uniqueSuffix}`;
   }
 
