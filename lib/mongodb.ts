@@ -31,11 +31,15 @@ if (!globalForMongoose.mongooseCache) {
 }
 
 /**
- * Establishes a connection to MongoDB using Mongoose.
+ * Establishes and returns a cached Mongoose connection to the MongoDB instance
+ * specified by the MONGODB_URI environment variable.
  *
- * The connection is cached across hot reloads in development to prevent
- * creating multiple connections. In production this behaves like a standard
- * singleton connection helper.
+ * The connection is cached to avoid creating multiple connections during hot
+ * module reloads in development and acts as a singleton in production.
+ * If a connection attempt fails, the internal connection promise is reset so
+ * subsequent calls can retry; the original error is rethrown.
+ *
+ * @returns The connected `mongoose` module instance
  */
 export async function connectToDatabase(): Promise<typeof mongoose> {
   // If a connection already exists, use it.
