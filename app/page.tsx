@@ -14,9 +14,12 @@ const BASE_URL = (() => {
   return "http://localhost:3000";
 })();
 
+
 const Page = async () => {
+
   "use cache";
   cacheLife("hours");
+  
   const response = await fetch(`${BASE_URL}/api/events`);
   const { events } = await response.json();
 
