@@ -55,7 +55,7 @@ export const events: EventItem[] = [
     location: "MIT, Cambridge, MA",
     date: "September 2026",
     time: "48-hour hackathon",
-    },
+  },
   {
     title: "KubeCon + CloudNativeCon North America 2026",
     image: "/images/event-full.png",
@@ -64,5 +64,4 @@ export const events: EventItem[] = [
     date: "September 2026",
     time: "9:00 AM – 5:00 PM PT",
   },
- 
 ];
