@@ -154,7 +154,7 @@ const EventDetails = async ({ params }: { params: Promise<string> }) => {
                 Join {bookings} people who have already booked their spot!
               </p>
             ) : (
-              <p className="text-sm">Be the first to book your spot!</p>
+              <p className="text-sm">Be the first to book your Spot!</p>
             )}
 
             <BookEvent eventId={event._id} slug={event.slug} />
