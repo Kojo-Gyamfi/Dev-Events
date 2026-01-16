@@ -4,6 +4,7 @@ import Event from "./event.model";
 // TypeScript interface for Booking document
 export interface IBooking extends Document {
   eventId: Types.ObjectId;
+  slug: string;
   email: string;
   createdAt: Date;
   updatedAt: Date;
@@ -15,6 +16,11 @@ const BookingSchema = new Schema<IBooking>(
       type: Schema.Types.ObjectId,
       ref: "Event",
       required: [true, "Event ID is required"],
+    },
+    slug: {
+      type: String,
+      required: [true, "Event slug is required"],
+      trim: true,
     },
     email: {
       type: String,
@@ -37,36 +43,31 @@ const BookingSchema = new Schema<IBooking>(
   }
 );
 
-// Pre-save hook to validate events exists before creating booking
-BookingSchema.pre(
-  "save",
-  async function (this: IBooking, next: (err?: any) => void) {
-    const booking = this as IBooking;
+// Pre-save hook to validate event exists before creating booking
+BookingSchema.pre("save", async function () {
+  const booking = this as IBooking;
 
-    // Only validate eventId if it's new or modified
-    if (booking.isModified("eventId") || booking.isNew) {
-      try {
-        const eventExists = await Event.findById(booking.eventId).select("_id");
+  // Only validate eventId if it's new or modified
+  if (booking.isModified("eventId") || booking.isNew) {
+    try {
+      const eventExists = await Event.findById(booking.eventId).select("_id");
 
-        if (!eventExists) {
-          const error = new Error(
-            `Event with ID ${booking.eventId} does not exist`
-          );
-          error.name = "ValidationError";
-          return next(error);
-        }
-      } catch {
-        const validationError = new Error(
-          "Invalid events ID format or database error"
+      if (!eventExists) {
+        const error = new Error(
+          `Event with ID ${booking.eventId} does not exist`
         );
-        validationError.name = "ValidationError";
-        return next(validationError);
+        error.name = "ValidationError";
+        throw error;
       }
+    } catch {
+      const validationError = new Error(
+        "Invalid event ID format or database error"
+      );
+      validationError.name = "ValidationError";
+      throw validationError;
     }
-
-    next();
   }
-);
+});
 
 // Create index on eventId for faster queries
 BookingSchema.index({ eventId: 1 });

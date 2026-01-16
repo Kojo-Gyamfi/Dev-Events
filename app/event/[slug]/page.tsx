@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { IEvent } from "@/database";
 import { getSimilarEventsBySlug } from "@/lib/actions/event.actions";
 import EventCard from "@/components/EventCard";
+import { Suspense } from "react";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
 
@@ -49,28 +50,23 @@ const EventTags = ({ tags }: { tags: string[] }) => {
   );
 };
 
-const EventDetailsPage = async ({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) => {
-  const { slug } = await params;
+const EventDetailsContent = async ({ slug }: { slug: string }) => {
   const request = await fetch(`${BASE_URL}/api/events/${slug}`);
+  const { event } = await request.json();
+
   const {
-    event: {
-      description,
-      image,
-      overview,
-      date,
-      time,
-      location,
-      mode,
-      agenda,
-      audience,
-      tags,
-      organizer,
-    },
-  } = await request.json();
+    description,
+    image,
+    overview,
+    date,
+    time,
+    location,
+    mode,
+    agenda,
+    audience,
+    tags,
+    organizer,
+  } = event;
 
   if (!description) return notFound();
 
@@ -145,7 +141,7 @@ const EventDetailsPage = async ({
               <p className="text-sm">Be the first to book your spot!</p>
             )}
 
-            <Bookevent />
+            <Bookevent eventId={event._id} slug={event.slug} />
           </div>
         </aside>
       </div>
@@ -161,6 +157,27 @@ const EventDetailsPage = async ({
       </div>
     </section>
   );
+};
+
+const EventDetailsPage = ({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) => {
+  return (
+    <Suspense fallback={<div>Loading event details...</div>}>
+      <EventDetailsWrapper params={params} />
+    </Suspense>
+  );
+};
+
+const EventDetailsWrapper = async ({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) => {
+  const { slug } = await params;
+  return <EventDetailsContent slug={slug} />;
 };
 
 export default EventDetailsPage;
